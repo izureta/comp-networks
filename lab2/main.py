@@ -28,12 +28,17 @@ def find_min_mtu(destination, max_mtu=2000):
 def main():
     parser = argparse.ArgumentParser(description='Find minimum MTU.')
     parser.add_argument('destination', help='Destination address.')
-    args = parser.parse_args()
+
+    try:
+        args = parser.parse_args()
+    except Exception as e:
+        print(f"Error: {e}")
+        print("Failed to parse arguments")
 
     try:
         socket.gethostbyname(args.destination)
     except socket.error:
-        print("Destination is not reachable.")
+        print("Destination is not reachable or incorrect.")
         return
 
     min_mtu = find_min_mtu(args.destination)
