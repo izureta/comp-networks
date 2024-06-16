@@ -1,0 +1,7 @@
+
+version: '3'
+services:
+  max_mtu_finder:
+    build: .
+    container_name: max_mtu
+    network_mode: "host"
