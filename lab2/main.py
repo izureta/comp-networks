@@ -3,7 +3,7 @@ import argparse
 import socket
 
 
-def find_min_mtu(destination, max_mtu=2000):
+def find_min_mtu(destination, max_mtu=10000):
     mtu_bin_pow = 20
     min_mtu = 0
     while mtu_bin_pow >= 0:
@@ -15,14 +15,20 @@ def find_min_mtu(destination, max_mtu=2000):
         cmd = ['ping', '-c', '1', '-M', 'do', '-s', str(min_mtu), destination]
         try:
             result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            if "Message too long" in result.stderr.decode():
+            if "100% packet loss" in result.stdout.decode() or "Message too long" in result.stderr.decode():
                 min_mtu -= 2 ** mtu_bin_pow
+            if "Unreachable" in result.stdout.decode() or "Unreachable" in  result.stderr.decode():
+                print("Destination is not reachable or incorrect.")
+                return None
             mtu_bin_pow -= 1
         except Exception as e:
             print(f"Error: {e}")
             return None
 
-    return min_mtu
+    if min_mtu == 0:
+        print("ICMP is blocked.")
+        return None
+    return min_mtu + 28
 
 
 def main():
